@@ -1,0 +1,77 @@
+- name: "Installing all Softwares in all nodes"
+  hosts: all
+  tasks:
+    - name: "Install the jdk rpm from a remote repo by yum"
+      yum:
+        name: "http://83.103.170.157/apps/java/jdk_1.8/jdk/jdk-8u202-linux-x64.rpm"
+        state: present
+    - name: "Install Haddop by rpm"
+      command: "rpm -i https://archive.apache.org/dist/hadoop/core/hadoop-1.2.1/hadoop-1.2.1-1.x86_64.rpm  --force"
+- name: "Configuring Namenode"
+  hosts: nn
+  tasks:
+    - name: "Creeating nameode data directory"
+      file:
+        state: directory
+        path: /nn
+    - name:  "setting the coresite xml"
+      blockinfile:
+        path: /etc/hadoop/core-site.xml
+        insertafter: "<configuration>"
+        content: |
+          <property>
+          <name>fs.default.name</name>
+          <value>hdfs://0.0.0.0:9001</value>
+          </property>
+    - name: "Setting the hdfs xml"
+      blockinfile:
+        path: /etc/hadoop/hdfs-site.xml
+        insertafter: "<configuration>"
+        content: |
+          <property>
+          <name>dfs.name.dir</name>
+          <value>/nn</value>
+          </property>
+    - name: "Format namenode" 
+      command: "hadoop namenode -format -force"
+    - name: "Stooping firewall" 
+      service:
+        name: "firewalld"
+        state: stopped
+    - name: "Starting namenode"
+      command: "hadoop-daemon.sh start namenode"
+- name: "Configuring Datanode"
+  hosts: dn
+  vars_prompt:
+  - name : master_ip
+    private: no
+    prompt: "Enter Master node IP : "
+  tasks:
+    - name: "Creeating nameode data directory"
+      file:
+        state: directory
+        path: /dn
+    - name:  "Setting the coresite xml"
+      blockinfile:
+        path: /etc/hadoop/core-site.xml
+        insertafter: "<configuration>"
+        content: |
+          <property>
+          <name>fs.default.name</name>
+          <value>hdfs://{{master_ip}}:9001</value>
+          </property>
+    - name:  "Setting the hdfs xml"
+      blockinfile:
+        path: /etc/hadoop/hdfs-site.xml
+        insertafter: "<configuration>"
+        content: |
+          <property>
+          <name>dfs.data.dir</name>
+          <value>/dn</value>
+          </property>
+    - name: "Stooping firewall "
+      service:
+        name: "firewalld"
+        state: stopped
+    - name: "Starting datanode"
+      command: "hadoop-daemon.sh start datanode"

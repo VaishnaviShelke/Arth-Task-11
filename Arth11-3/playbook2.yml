@@ -1,0 +1,22 @@
+- hosts: webserver
+  tasks:
+  - package:
+      name: "httpd"
+      state: present
+    
+
+  - copy:
+      content: "<h1>ARTH TASK 11.3 Completed!</h1></br><p>Used Handler To solve the issue.</p>"
+
+      dest: "/var/www/html/index.html"
+   
+    notify: web services
+  
+  handlers:
+  - name: web services
+    service:
+      name: "httpd"
+      state: restarted
+      enabled: yes
+
+    

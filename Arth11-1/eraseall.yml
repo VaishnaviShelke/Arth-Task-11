@@ -1,0 +1,19 @@
+- name: "Deleting all resources"
+  hosts: all
+  tasks:
+    - name: "Delete all"
+      command: "yum remove java hadoop -y"
+- name: "Configuring Namenode"
+  hosts: nn
+  tasks:
+    - name: "Delete nameode data directory"
+      command: "rm -rf /nn"
+    - name:  "delete the files"
+      command: "rm -rf /etc/hadoop/"
+- name: "Configuring Datanode"
+  hosts: dn
+  tasks:
+    - name: "Delete nameode data directory"
+      command: "rm -rf /dn"
+    - name:  "delete the files"
+      command: "rm -rf /etc/hadoop/"

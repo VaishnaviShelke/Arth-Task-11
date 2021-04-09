@@ -1,0 +1,13 @@
+- hosts: webserver
+  tasks:
+  - package:
+      name: "httpd"
+      state: present
+  - copy:
+      content: "<h1>ARTH TASK 11.3</h1></br><p>Ansible Idempotence task!</p>"
+      dest: "/var/www/html/index.html"
+  - service:
+      name: "httpd"
+      state: started
+      enabled: yes
+
